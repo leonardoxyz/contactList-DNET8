@@ -1,0 +1,32 @@
+﻿@page "/edit-user"
+@page "/edit-user/{Id:int}"
+@inject IUserService UserService
+
+@if(Id is null)
+{
+    <PageTitle>Add a New User!</PageTitle>
+    <h3>Add a New User!</h3>
+} 
+else
+{
+    <PageTitle>Edit "@CurrentUser.Name"</PageTitle>
+    <h3>Edit "@CurrentUser.Name"</h3>
+}
+
+@code {
+    [Parameter]
+    public int? Id { get; set; }
+    public User CurrentUser { get; set; } = new();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if(Id is not null)
+        {
+            var user = await UserService.GetUserByIdAsync((int)Id);
+            if(user is not null)
+            {
+                CurrentUser = user;
+            }
+        }
+    }
+}
