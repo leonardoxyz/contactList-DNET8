@@ -1,55 +1,72 @@
 ﻿@page "/users"
 @inject IUserService UserService
 @rendermode InteractiveServer
-@inject NavigationManager Navigationmanager
+@inject NavigationManager NavigationManager
 
 <PageTitle>Users List</PageTitle>
 <h3>Users</h3>
 
-    <table class="table">
-        <thead>
+<table class="table">
+    <thead>
+        <tr>
+            <th>User ID</th>
+            <th>Name</th>
+            <th>E-mail</th>
+            <th>Phone</th>
+            <td>Actions</td>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in users)
+        {
             <tr>
-                <th>User ID</th>
-                <th>Name</th>
-                <th>E-mail</th>
-                <th>Phone</th>
-                <td>Actions</td>
+                <td>
+                    @user.Id
+                </td>
+                <td>
+                    @user.Name
+                </td>
+                <td>
+                    @user.Email
+                </td>
+                <td>
+                    @user.Phone
+                </td>
+                <td>
+                    <button class="btn btn-primary" @onclick="@(() => EditUser(user.Id))">Edit</button>
+                    <button class="btn btn-danger" @onclick="@(() => DeleteUser(user.Id))">Delete</button>
+                </td>
             </tr>
-        </thead>
-        <tbody>
-            @foreach(var user in users)
-            {
-                <tr>
-                    <td>
-                        @user.Id
-                    </td>
-                    <td>
-                        @user.Name
-                    </td>
-                    <td>
-                        @user.Email
-                    </td>
-                    <td>
-                        @user.Phone
-                    </td>
-                    <td>
-                        <button class="btn btn-primary" @onclick="@(() => EditUser(user.Id))">Edit</button>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+        }
+    </tbody>
+</table>
+
+<button @onclick="@AddUser" class="btn btn-primary">
+    Add a New User
+</button>
 
 @code {
     List<User> users = new List<User>();
 
     protected override async Task OnInitializedAsync()
     {
+        await Task.Delay(100);
         users = await UserService.GetAllUsersAsync();
     }
 
-    void EditUser(int id)
+    void EditUser(Guid id) 
     {
-        Navigationmanager.NavigateTo($"/edit-user/{id}");
+    NavigationManager.NavigateTo($"/edit-user/{id}");
     }
+
+    void AddUser()
+    {
+    NavigationManager.NavigateTo("/edit-user");
+    }
+
+    async Task DeleteUser(Guid id) 
+    {
+    await UserService.DeleteUserAsync(id);
+    users = await UserService.GetAllUsersAsync();
+}
 }

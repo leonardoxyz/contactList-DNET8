@@ -1,6 +1,9 @@
 ﻿using blazorServerDNET.Data;
 using blazorServerDNET.Models;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace blazorServerDNET.Services
 {
@@ -19,7 +22,7 @@ namespace blazorServerDNET.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteUserAsync(int id)
+        public async Task DeleteUserAsync(Guid id) 
         {
             var user = await _context.Users.FindAsync(id);
             if (user != null)
@@ -35,13 +38,13 @@ namespace blazorServerDNET.Services
             return result;
         }
 
-        public async Task<User> GetUserByIdAsync(int id)
+        public async Task<User> GetUserByIdAsync(Guid id)
         {
             var user = await _context.Users.FindAsync(id);
             return user;
         }
 
-        public async Task UpdateUserAsync(User user, int id)
+        public async Task UpdateUserAsync(User user, Guid id) 
         {
             var dbUser = await _context.Users.FindAsync(id);
             if (dbUser != null)

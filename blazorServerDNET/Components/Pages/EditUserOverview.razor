@@ -1,8 +1,10 @@
 ﻿@page "/edit-user"
-@page "/edit-user/{Id:int}"
+@page "/edit-user/{Id:guid}"
 @inject IUserService UserService
+@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
 
-@if(Id is null)
+@if(Id == null || Id == Guid.Empty)
 {
     <PageTitle>Add a New User!</PageTitle>
     <h3>Add a New User!</h3>
@@ -13,20 +15,59 @@ else
     <h3>Edit "@CurrentUser.Name"</h3>
 }
 
+<EditForm Model="CurrentUser" OnSubmit="HandleSubmit">
+    <div>
+        <label for="name">
+            Name
+        </label>
+        <InputText id="name" @bind-Value="CurrentUser.Name" class="form-control"></InputText>
+
+        <label for="email">
+            Email
+        </label>
+        <InputText id="email" @bind-Value="CurrentUser.Email" class="form-control"></InputText>
+
+        <label for="phone">
+            Phone
+        </label>
+        <InputText id="phone" @bind-Value="CurrentUser.Phone" class="form-control"></InputText>
+    </div>
+    @if (Id == null || Id == Guid.Empty)
+    {
+        <button type="submit" class="btn btn-outline-primary">Add</button>
+    } else
+    {
+        <button type="submit" class="btn btn-secondary">Update</button>
+    }
+</EditForm>
+
 @code {
     [Parameter]
-    public int? Id { get; set; }
+    public Guid? Id { get; set; }
     public User CurrentUser { get; set; } = new();
 
     protected override async Task OnParametersSetAsync()
     {
-        if(Id is not null)
+        if(Id is not null && Id != Guid.Empty)
         {
-            var user = await UserService.GetUserByIdAsync((int)Id);
+            var user = await UserService.GetUserByIdAsync(Id.Value);
             if(user is not null)
             {
                 CurrentUser = user;
             }
+        }
+    }
+
+    async Task HandleSubmit()
+    {
+        if(Id is not null && Id != Guid.Empty)
+        {
+            await UserService.UpdateUserAsync(CurrentUser, Id.Value);
+            NavigationManager.NavigateTo("/users");
+        } else
+        {
+            await UserService.AddUserAsync(CurrentUser);
+            NavigationManager.NavigateTo("/users");
         }
     }
 }
